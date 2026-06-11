@@ -28,12 +28,16 @@
 \title{Álgebras de Caminos de Quivers como una\\ Atención Dispersa Multi-Salto para Mitigar\\ el Over-Squashing en GNNs}
 \titlerunning{Walk Attention}
 
-\author{Carlos Isaac Zainea Maya\inst{1}\orcidID{0000-0002-6459-2397} \and
-Agustín Moreno Cañadas\inst{1}\orcidID{0000-0001-6812-5131}}
-\authorrunning{C. I. Zainea Maya and A. Moreno Cañadas}
-\institute{Universidad Nacional de Colombia, Departamento de Matemáticas,\\
-Bogotá, Colombia\\
-\email{\{cizaineam,amorenoca\}@unal.edu.co}}
+% CAMERA-READY author block (restore upon acceptance):
+% \author{Carlos Isaac Zainea Maya\inst{1}\orcidID{0000-0002-6459-2397} \and
+% Agustín Moreno Cañadas\inst{1}\orcidID{0000-0001-6812-5131}}
+% \authorrunning{C. I. Zainea Maya and A. Moreno Cañadas}
+% \institute{Universidad Nacional de Colombia, Departamento de Matemáticas,\\
+% Bogotá, Colombia\\
+% \email{\{cizaineam,amorenoca\}@unal.edu.co}}
+\author{Autor(es) Anónimo(s)}
+\authorrunning{Anónimo}
+\institute{Afiliación retenida para la revisión doble ciego}
 
 \maketitle
 
@@ -166,8 +170,7 @@ representaciones de quivers.
 El álgebra de caminos es un objeto estándar de la teoría de representaciones
 \cite{schiffler2014quiver,assem2006elements}; las álgebras de configuración de
 Brauer y construcciones afines se han aplicado recientemente a problemas
-combinatorios por Moreno Cañadas y colaboradores
-\cite{moreno2021brauer,moreno2024integer}. Lo más cercano al presente trabajo
+combinatorios \cite{moreno2021brauer,moreno2024integer}. Lo más cercano al presente trabajo
 es el sistema de vecindades por grado de impacto y el marco de autómatas de
 impacto \cite{zainea2026aiq,ibanez2025casimulations}, que tomamos como el
 hermano dinámico de Walk Attention sobre el mismo sustrato
@@ -896,12 +899,12 @@ lectura aprendida de un sustrato común cuya lectura dinámica es el marco AIQ
 \subsubsection*{Reproducibilidad.}
 Los generadores de grafos, los operadores de recorrido, la capa Walk Attention,
 las líneas base y los registros de experimentos se publican
-\cite{repo_walkattention}; los cálculos del álgebra usan la biblioteca abierta
-\texttt{aiq-quivers} \cite{repo_aiqquivers}.
+\cite{repo_walkattention}; los cálculos del álgebra usan una biblioteca abierta
+de álgebras de caminos \cite{repo_aiqquivers}.
 
 % =====================================================================
 \bibliographystyle{splncs04}
-\bibliography{walk_attention}
+\bibliography{walk_attention_v2}
 % =====================================================================
 
 \end{document}
