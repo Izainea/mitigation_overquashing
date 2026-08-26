@@ -28,16 +28,12 @@
 \title{Álgebras de Caminos de Quivers como una\\ Atención Dispersa Multi-Salto para Mitigar\\ el Over-Squashing en GNNs}
 \titlerunning{Walk Attention}
 
-% CAMERA-READY author block (restore upon acceptance):
-% \author{Carlos Isaac Zainea Maya\inst{1}\orcidID{0000-0002-6459-2397} \and
-% Agustín Moreno Cañadas\inst{1}\orcidID{0000-0001-6812-5131}}
-% \authorrunning{C. I. Zainea Maya and A. Moreno Cañadas}
-% \institute{Universidad Nacional de Colombia, Departamento de Matemáticas,\\
-% Bogotá, Colombia\\
-% \email{\{cizaineam,amorenoca\}@unal.edu.co}}
-\author{Autor(es) Anónimo(s)}
-\authorrunning{Anónimo}
-\institute{Afiliación retenida para la revisión doble ciego}
+\author{Carlos Isaac Zainea Maya\inst{1}\orcidID{0000-0002-6459-2397} \and
+Agustín Moreno Cañadas\inst{1}\orcidID{0000-0001-6812-5131}}
+\authorrunning{C. I. Zainea Maya and A. Moreno Cañadas}
+\institute{Universidad Nacional de Colombia, Departamento de Matemáticas,\\
+Bogotá, Colombia\\
+\email{\{cizaineam,amorenoca\}@unal.edu.co}}
 
 \maketitle
 
@@ -504,11 +500,17 @@ concatenan y se añade un término ``raíz'' residual,
 $\mathrm{WA}_k(x)_j=\Vert_h z^h_j + x_jW_{\!\text{root}}$. Como~\eqref{eq:wa}
 solo toca pares de $\mathcal{S}_k$, la capa cuesta $O(|\mathcal{S}_k|HC)$ en
 tiempo y memoria, no $O(n^2)$; los soportes se precalculan una vez por grafo
-como los patrones de no-ceros de $\Adj^{\,k}$. La Figura~\ref{fig:layer}
+como los patrones de no-ceros de $\Adj^{\,k}$. El precálculo es a su vez
+disperso: los patrones se obtienen con $k-1$ productos dispersos
+matriz--matriz, con costo gobernado por los no-ceros de las potencias
+intermedias y no por $n^2$; en grafos masivos cuyas potencias altas se
+densifican, el soporte puede truncarse o muestrearse antes de aplicar la
+atención (Sección~\ref{sec:conclusion}). La Figura~\ref{fig:layer}
 muestra el flujo de datos y el Algoritmo~\ref{alg:wa} resume una capa.
 
 \begin{figure}[t]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   >={Stealth[round]}, node distance=6mm,
   box/.style={draw,rounded corners=2pt,minimum height=7mm,inner sep=3pt,font=\small,fill=blue!4},
@@ -536,7 +538,7 @@ muestra el flujo de datos y el Algoritmo~\ref{alg:wa} resume una capa.
     node[midway,right,lbl,text=green!50!black] {restringe los pares};
   \draw[->,rounded corners] (x.north) -- ++(0,6mm) -| (out.north)
     node[pos=0.25,above,lbl] {raíz (residual)};
-\end{tikzpicture}
+\end{tikzpicture}}
 \caption{Una capa de Walk Attention a alcance $k$. Consultas, claves y valores
 son mapas lineales de los atributos; la atención se calcula \emph{solo} sobre
 los pares alcanzables $\mathcal{S}_k$ que provee el álgebra de caminos (el
@@ -618,7 +620,7 @@ Sobre la familia de cadenas con cuello de botella de la Sección~\ref{sec:exp},
 la separación entre el paso de mensajes de un salto y Walk Attention se puede
 \emph{demostrar}, no solo medir. La construcción: $K$ fuentes llevan una
 \emph{clave} one-hot---la asignación de claves es una permutación aleatoria
-uniforme $\pi$---y un \emph{valor} one-hot; siguen $d$ capas de cuello de
+uniforme $\pi$---y un \emph{valor} one-hot (un vector de la base distinto para cada fuente); siguen $d$ capas de cuello de
 botella $L_1,\dots,L_d$ de $M$ vértices intercambiables y sin atributos, con
 capas consecutivas totalmente conectadas; un objetivo lleva una \emph{consulta}
 one-hot $q$ y debe producir el valor de la fuente cuya clave es $q$ (etiqueta
@@ -671,8 +673,9 @@ entrada en el valor correcto, en toda instancia, para todos $d$ y $M$.
 \end{proposition}
 
 \begin{proof}
-El logit de la fuente $s$ es $\beta\,\mathbf{1}[\pi(s)=q]$, así que el softmax
-pone su mayor peso $e^{\beta}/(e^{\beta}+K-1)$ en la única coincidencia
+El logit de la fuente $s$ es $(\beta/\sqrt{C})\,\mathbf{1}[\pi(s)=q]$, así que
+el softmax pone su mayor peso $e^{\beta/\sqrt{C}}/(e^{\beta/\sqrt{C}}+K-1)$ en
+la única coincidencia
 $s^\ast$; siendo los valores vectores distintos de la base, la mayor coordenada
 de $z_t$ es $\alpha_{s^\ast}$, en $v(s^\ast)=\pi^{-1}(q)$. \qed
 \end{proof}
@@ -741,13 +744,13 @@ Proposición~\ref{prop:blind} (el residuo es sesgo de mejor época).}
 \label{tab:main}
 \begin{tabular}{lcc}
 \toprule
-\textbf{Model} & \textbf{depth $d=2$} & \textbf{depth $d=3$} \\
+\textbf{Modelo} & \textbf{profundidad $d=2$} & \textbf{profundidad $d=3$} \\
 \midrule
-GCN (one-hop, linear aggregation)  & $0.21\pm0.01$ & $0.22\pm0.01$ \\
-GIN (one-hop, linear aggregation)  & $0.21\pm0.01$ & $0.21\pm0.01$ \\
-GAT (one-hop attention)            & $0.45\pm0.22$ & $0.29\pm0.17$ \\
-Walk operator (fixed weights)      & $0.62\pm0.12$ & $0.50\pm0.12$ \\
-\textbf{Walk Attention (ours)}     & $\mathbf{1.000\pm0.000}$ & $\mathbf{1.000\pm0.000}$ \\
+GCN (un salto, agregación lineal)    & $0.21\pm0.01$ & $0.22\pm0.01$ \\
+GIN (un salto, agregación lineal)    & $0.21\pm0.01$ & $0.21\pm0.01$ \\
+GAT (atención de un salto)            & $0.45\pm0.22$ & $0.29\pm0.17$ \\
+Operador de recorrido (pesos fijos)      & $0.62\pm0.12$ & $0.50\pm0.12$ \\
+\textbf{Walk Attention (nuestra)}     & $\mathbf{1.000\pm0.000}$ & $\mathbf{1.000\pm0.000}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -755,7 +758,7 @@ Walk operator (fixed weights)      & $0.62\pm0.12$ & $0.50\pm0.12$ \\
 \paragraph{RingTransfer.}
 Para confirmar el efecto en un benchmark independiente usamos
 \textsc{RingTransfer}
-\cite{digiovanni2023oversquashing}: un ciclo de $n$ nodos donde una fuente debe
+\cite{bodnar2021cw,digiovanni2023oversquashing}: un ciclo de $n$ nodos donde una fuente debe
 transmitir su etiqueta one-hot (cinco clases, azar $0.2$) al objetivo
 diametralmente opuesto, a $n/2$ saltos por los \emph{dos arcos} del anillo.
 Cada nodo tiene dos vecinos, así que el número de recorridos de longitud $n/2$
@@ -777,11 +780,11 @@ $n/2$), media $\pm$ desv.\ sobre 5 semillas; azar $0.20$.}
 \label{tab:ring}
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Model} & $n{=}6$ & $n{=}10$ & $n{=}14$ & $n{=}18$ \\
+\textbf{Modelo} & $n{=}6$ & $n{=}10$ & $n{=}14$ & $n{=}18$ \\
 \midrule
 GCN                    & $1.00\pm0.00$ & $1.00\pm0.00$ & $0.81\pm0.13$ & $0.53\pm0.33$ \\
 GAT                    & $1.00\pm0.00$ & $1.00\pm0.00$ & $0.69\pm0.29$ & $0.29\pm0.19$ \\
-\textbf{Walk Attention (ours)} & $\mathbf{1.00\pm0.00}$ & $\mathbf{1.00\pm0.00}$ & $\mathbf{1.00\pm0.00}$ & $\mathbf{1.00\pm0.00}$ \\
+\textbf{Walk Attention (nuestra)} & $\mathbf{1.00\pm0.00}$ & $\mathbf{1.00\pm0.00}$ & $\mathbf{1.00\pm0.00}$ & $\mathbf{1.00\pm0.00}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -808,10 +811,10 @@ operador coincide).}
 \label{tab:quotient}
 \begin{tabular}{lcc}
 \toprule
-\textbf{Operator} & \textbf{depth $d=2$} & \textbf{depth $d=3$} \\
+\textbf{Operador} & \textbf{profundidad $d=2$} & \textbf{profundidad $d=3$} \\
 \midrule
-Quotient $\kQ/I$ (collapsed walks) & $0.39\pm0.04$ & $0.30\pm0.09$ \\
-Walk operator (raw walks)          & $\mathbf{0.62\pm0.12}$ & $\mathbf{0.50\pm0.12}$ \\
+Cociente $\kQ/I$ (recorridos colapsados) & $0.39\pm0.04$ & $0.30\pm0.09$ \\
+Operador de recorrido (recorridos crudos)          & $\mathbf{0.62\pm0.12}$ & $\mathbf{0.50\pm0.12}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -847,11 +850,11 @@ arquitectura \cite{dwivedi2022lrgb,tonshoff2023where}.}
 \label{tab:lrgb}
 \begin{tabular}{lc}
 \toprule
-\textbf{Model} & \textbf{test AP} \\
+\textbf{Modelo} & \textbf{AP de prueba} \\
 \midrule
 GCN                          & $0.492\pm0.011$ \\
 GAT                          & $0.526\pm0.004$ \\
-Walk Attention (ours)        & $0.526\pm0.007$ \\
+Walk Attention (nuestra)        & $0.526\pm0.007$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -890,7 +893,11 @@ lectura aprendida de un sustrato común cuya lectura dinámica es el marco AIQ
   \item \textbf{Soportes con forma de cociente.} Usar $\kQ/I$ para
   \emph{particionar} los recorridos en clases enrutadas a cabezas de atención
   distintas, en lugar de comprimir; identificar qué relaciones $I$ sirven, y
-  aprenderlas de los datos, es un problema atractivo.
+  aprenderlas de los datos, es un problema atractivo. Una instancia concreta:
+  en un grafo heterogéneo cuyos recorridos componen relaciones tipadas, un
+  ideal que identifique las composiciones semánticamente equivalentes ataría
+  cada clase a una cabeza compartida---compartiendo pesos entre caminos
+  redundantes y manteniendo separadas las influencias genuinamente distintas.
   \item \textbf{Escalar el soporte.} Truncar, muestrear o aprender soportes
   admisibles más dispersos en grafos densos, donde el soporte de alcance $k$
   puede crecer.

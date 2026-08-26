@@ -26,16 +26,12 @@
 \title{Path Algebras of Quivers as a Sparse\\ Multi-Hop Attention for Mitigating\\ Over-Squashing in GNNs}
 \titlerunning{Walk Attention}
 
-% CAMERA-READY author block (restore upon acceptance):
-% \author{Carlos Isaac Zainea Maya\inst{1}\orcidID{0000-0002-6459-2397} \and
-% Agust\'in Moreno Ca\~nadas\inst{1}\orcidID{0000-0001-6812-5131}}
-% \authorrunning{C. I. Zainea Maya and A. Moreno Ca\~nadas}
-% \institute{Universidad Nacional de Colombia, Departamento de Matem\'aticas,\\
-% Bogot\'a, Colombia\\
-% \email{\{cizaineam,amorenoca\}@unal.edu.co}}
-\author{Anonymous Author(s)}
-\authorrunning{Anonymous}
-\institute{Affiliation withheld for double-blind review}
+\author{Carlos Isaac Zainea Maya\inst{1}\orcidID{0000-0002-6459-2397} \and
+Agust\'in Moreno Ca\~nadas\inst{1}\orcidID{0000-0001-6812-5131}}
+\authorrunning{C. I. Zainea Maya and A. Moreno Ca\~nadas}
+\institute{Universidad Nacional de Colombia, Departamento de Matem\'aticas,\\
+Bogot\'a, Colombia\\
+\email{\{cizaineam,amorenoca\}@unal.edu.co}}
 
 \maketitle
 
@@ -494,11 +490,16 @@ term is added, $\mathrm{WA}_k(x)_j=\Vert_h z^h_j + x_jW_{\!\text{root}}$.
 Because~\eqref{eq:wa} only ever touches pairs in $\mathcal{S}_k$, the layer
 costs $O(|\mathcal{S}_k|HC)$ time and memory, not $O(n^2)$; the supports are
 precomputed once per graph as the nonzero patterns of $\Adj^{\,k}$.
-Figure~\ref{fig:layer} shows the data flow and Algorithm~\ref{alg:wa}
-summarises one layer.
+The precomputation is itself sparse: the patterns are obtained by $k-1$ sparse
+matrix--matrix products, at a cost governed by the nonzeros of the intermediate
+powers rather than by $n^2$; on massive graphs whose higher powers densify, the
+support can be truncated or sampled before attention is applied
+(Section~\ref{sec:conclusion}). Figure~\ref{fig:layer} shows the data flow and
+Algorithm~\ref{alg:wa} summarises one layer.
 
 \begin{figure}[t]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   >={Stealth[round]}, node distance=6mm,
   box/.style={draw,rounded corners=2pt,minimum height=7mm,inner sep=3pt,font=\small,fill=blue!4},
@@ -526,7 +527,7 @@ summarises one layer.
     node[midway,right,lbl,text=green!50!black] {restricts pairs};
   \draw[->,rounded corners] (x.north) -- ++(0,6mm) -| (out.north)
     node[pos=0.25,above,lbl] {root (residual)};
-\end{tikzpicture}
+\end{tikzpicture}}
 \caption{One Walk Attention layer at range $k$. Queries, keys and values are
 linear maps of the node features; attention is computed \emph{only} over the
 walk-reachable pairs $\mathcal{S}_k$ supplied by the path algebra (the nonzero
@@ -607,7 +608,7 @@ On the bottleneck-chain family used in Section~\ref{sec:exp}, the separation
 between one-hop message passing and Walk Attention can be \emph{proved}, not
 only measured. The construction: $K$ sources carry a one-hot \emph{key}---the
 key assignment is a uniformly random permutation $\pi$---and a one-hot
-\emph{value}; $d$ bottleneck layers $L_1,\dots,L_d$ of $M$ interchangeable,
+\emph{value} (a distinct basis vector for each source); $d$ bottleneck layers $L_1,\dots,L_d$ of $M$ interchangeable,
 featureless vertices follow, consecutive layers fully connected; a target
 carries a one-hot \emph{query} $q$ and must output the value of the source
 whose key is $q$ (label $\pi^{-1}(q)$, chance $1/K$). Networks have the
@@ -657,8 +658,9 @@ instance, for all $d$ and $M$.
 \end{proposition}
 
 \begin{proof}
-The logit of source $s$ is $\beta\,\mathbf{1}[\pi(s)=q]$, so the softmax puts
-its largest weight $e^{\beta}/(e^{\beta}+K-1)$ on the unique match $s^\ast$;
+The logit of source $s$ is $(\beta/\sqrt{C})\,\mathbf{1}[\pi(s)=q]$, so the
+softmax puts its largest weight $e^{\beta/\sqrt{C}}/(e^{\beta/\sqrt{C}}+K-1)$
+on the unique match $s^\ast$;
 the values being distinct basis vectors, the largest coordinate of $z_t$ is
 $\alpha_{s^\ast}$, at $v(s^\ast)=\pi^{-1}(q)$. \qed
 \end{proof}
@@ -740,7 +742,7 @@ Walk operator (fixed weights)      & $0.62\pm0.12$ & $0.50\pm0.12$ \\
 \paragraph{RingTransfer.}
 The bottleneck family is our own construction; to confirm the effect on an
 independent benchmark we use \textsc{RingTransfer}
-\cite{digiovanni2023oversquashing}: a cycle of $n$ nodes in which a source must
+\cite{bodnar2021cw,digiovanni2023oversquashing}: a cycle of $n$ nodes in which a source must
 transmit its one-hot label (five classes, chance $0.2$) to the diametrically
 opposite target, $n/2$ hops away along the \emph{two arcs} of the ring. Every
 node has two neighbours, so the number of length-$(n/2)$ walks entering the
@@ -871,7 +873,11 @@ AIQ framework \cite{zainea2026aiq}. Several directions follow.
   \item \textbf{Quotient-shaped supports.} Use $\kQ/I$ to \emph{partition}
   walks into equivalence classes routed to distinct attention heads, rather
   than to compress; identifying which relations $I$ are useful, and learning
-  them from data, is an appealing problem.
+  them from data, is an appealing problem. A concrete instance: in a
+  heterogeneous graph whose walks compose typed relations, an ideal identifying
+  the semantically equivalent compositions would tie each class to one shared
+  head---sharing weights across redundant paths while keeping genuinely
+  distinct influences apart.
   \item \textbf{Scaling the support.} Truncate, sample, or learn sparser
   admissible supports on dense graphs, where the range-$k$ support can itself
   grow large.
