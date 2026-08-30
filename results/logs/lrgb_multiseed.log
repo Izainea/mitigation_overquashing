@@ -1,0 +1,92 @@
+loading + precomputing walk masks (matrix powers)...
+  10873/2331/2331 graphs, masks ready in 15s
+=== gcn seed 0 ===
+  [gcn s=0] epoch  0: val AP 0.2042  (best test 0.1989)
+  [gcn s=0] epoch 10: val AP 0.4206  (best test 0.4171)
+  [gcn s=0] epoch 20: val AP 0.4933  (best test 0.4561)
+  [gcn s=0] epoch 30: val AP 0.5114  (best test 0.4808)
+  [gcn s=0] epoch 39: val AP 0.5144  (best test 0.4816)
+  -> gcn s=0: val AP 0.5156  test AP 0.4816  (8.9 min)
+=== gat seed 0 ===
+  [gat s=0] epoch  0: val AP 0.2146  (best test 0.2096)
+  [gat s=0] epoch 10: val AP 0.4838  (best test 0.4736)
+  [gat s=0] epoch 20: val AP 0.5269  (best test 0.5063)
+  [gat s=0] epoch 30: val AP 0.5506  (best test 0.5170)
+  [gat s=0] epoch 39: val AP 0.5562  (best test 0.5212)
+  -> gat s=0: val AP 0.5564  test AP 0.5212  (12.2 min)
+=== walkattn seed 0 ===
+  [walkattn s=0] epoch  0: val AP 0.1968  (best test 0.1891)
+  [walkattn s=0] epoch 10: val AP 0.4801  (best test 0.4591)
+  [walkattn s=0] epoch 20: val AP 0.5261  (best test 0.4963)
+  [walkattn s=0] epoch 30: val AP 0.5377  (best test 0.5138)
+  [walkattn s=0] epoch 39: val AP 0.5540  (best test 0.5239)
+  -> walkattn s=0: val AP 0.5543  test AP 0.5239  (18.2 min)
+=== gcn seed 1 ===
+  [gcn s=1] epoch  0: val AP 0.1981  (best test 0.1917)
+  [gcn s=1] epoch 10: val AP 0.4214  (best test 0.4135)
+  [gcn s=1] epoch 20: val AP 0.4874  (best test 0.4599)
+  [gcn s=1] epoch 30: val AP 0.5195  (best test 0.4882)
+  [gcn s=1] epoch 39: val AP 0.5234  (best test 0.4916)
+  -> gcn s=1: val AP 0.5234  test AP 0.4916  (6.6 min)
+=== gat seed 1 ===
+  [gat s=1] epoch  0: val AP 0.1952  (best test 0.1987)
+  [gat s=1] epoch 10: val AP 0.4722  (best test 0.4684)
+  [gat s=1] epoch 20: val AP 0.5121  (best test 0.5012)
+  [gat s=1] epoch 30: val AP 0.5477  (best test 0.5255)
+  [gat s=1] epoch 39: val AP 0.5567  (best test 0.5287)
+  -> gat s=1: val AP 0.5583  test AP 0.5287  (8.3 min)
+=== walkattn seed 1 ===
+  [walkattn s=1] epoch  0: val AP 0.2112  (best test 0.2062)
+  [walkattn s=1] epoch 10: val AP 0.4843  (best test 0.4588)
+  [walkattn s=1] epoch 20: val AP 0.5325  (best test 0.4996)
+  [walkattn s=1] epoch 30: val AP 0.5506  (best test 0.5173)
+  [walkattn s=1] epoch 39: val AP 0.5531  (best test 0.5241)
+  -> walkattn s=1: val AP 0.5536  test AP 0.5241  (12.0 min)
+=== gcn seed 2 ===
+  [gcn s=2] epoch  0: val AP 0.1935  (best test 0.1933)
+  [gcn s=2] epoch 10: val AP 0.4124  (best test 0.4097)
+  [gcn s=2] epoch 20: val AP 0.4708  (best test 0.4586)
+  [gcn s=2] epoch 30: val AP 0.4963  (best test 0.4809)
+  [gcn s=2] epoch 39: val AP 0.5018  (best test 0.4872)
+  -> gcn s=2: val AP 0.5020  test AP 0.4872  (4.7 min)
+=== gat seed 2 ===
+  [gat s=2] epoch  0: val AP 0.1976  (best test 0.1973)
+  [gat s=2] epoch 10: val AP 0.4637  (best test 0.4509)
+  [gat s=2] epoch 20: val AP 0.5215  (best test 0.4994)
+  [gat s=2] epoch 30: val AP 0.5424  (best test 0.5220)
+  [gat s=2] epoch 39: val AP 0.5472  (best test 0.5253)
+  -> gat s=2: val AP 0.5477  test AP 0.5253  (6.7 min)
+=== walkattn seed 2 ===
+  [walkattn s=2] epoch  0: val AP 0.2085  (best test 0.1987)
+  [walkattn s=2] epoch 10: val AP 0.4831  (best test 0.4660)
+  [walkattn s=2] epoch 20: val AP 0.5326  (best test 0.5074)
+  [walkattn s=2] epoch 30: val AP 0.5569  (best test 0.5366)
+  [walkattn s=2] epoch 39: val AP 0.5635  (best test 0.5368)
+  -> walkattn s=2: val AP 0.5643  test AP 0.5368  (12.3 min)
+=== gcn seed 3 ===
+  [gcn s=3] epoch  0: val AP 0.1983  (best test 0.1894)
+  [gcn s=3] epoch 10: val AP 0.4477  (best test 0.4347)
+  [gcn s=3] epoch 20: val AP 0.4924  (best test 0.4806)
+  [gcn s=3] epoch 30: val AP 0.5213  (best test 0.4984)
+  [gcn s=3] epoch 39: val AP 0.5256  (best test 0.5065)
+  -> gcn s=3: val AP 0.5256  test AP 0.5065  (4.7 min)
+=== gat seed 3 ===
+  [gat s=3] epoch  0: val AP 0.1854  (best test 0.1867)
+  [gat s=3] epoch 10: val AP 0.4647  (best test 0.4572)
+  [gat s=3] epoch 20: val AP 0.5386  (best test 0.5035)
+  [gat s=3] epoch 30: val AP 0.5668  (best test 0.5250)
+  [gat s=3] epoch 39: val AP 0.5673  (best test 0.5290)
+  -> gat s=3: val AP 0.5688  test AP 0.5290  (6.6 min)
+=== walkattn seed 3 ===
+  [walkattn s=3] epoch  0: val AP 0.2130  (best test 0.2025)
+  [walkattn s=3] epoch 10: val AP 0.4619  (best test 0.4625)
+  [walkattn s=3] epoch 20: val AP 0.5103  (best test 0.4937)
+  [walkattn s=3] epoch 30: val AP 0.5474  (best test 0.5204)
+  [walkattn s=3] epoch 39: val AP 0.5466  (best test 0.5204)
+  -> walkattn s=3: val AP 0.5474  test AP 0.5204  (12.2 min)
+
+=== SUMMARY (test AP, mean +- std over seeds) ===
+  gat       0.5261 +- 0.0036
+  gcn       0.4917 +- 0.0107
+  walkattn  0.5263 +- 0.0072
+saved results/tables/lrgb_peptides_func_4seeds.csv

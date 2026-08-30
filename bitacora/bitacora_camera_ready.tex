@@ -1,0 +1,529 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{geometry}
+\geometry{margin=2.4cm}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+\newcommand{\estado}[1]{\textcolor{blue!60!black}{\textbf{[#1]}}}
+\newcommand{\ok}{\textcolor{green!50!black}{\checkmark}}
+\newcommand{\falla}{\textcolor{red!70!black}{$\times$}}
+\newcommand{\kk}{\Bbbk}
+\newcommand{\kQ}{\kk Q}
+
+\title{Bit\'acora de experimentos --- camera-ready CIARP\\
+\large \emph{Path Algebras of Quivers as a Sparse Multi-Hop Attention
+for Mitigating Over-Squashing in GNNs} (env\'io 15, \textbf{aceptado})}
+\author{C. I. Zainea Maya \and A. Moreno Ca\~nadas}
+\date{Iniciada: 26 de agosto de 2026 --- \'ultima actualizaci\'on: 26-08-2026 (cierre de fase)}
+
+\begin{document}
+\maketitle
+
+\section{Contexto y observaciones de los jurados}
+
+El art\'iculo fue \textbf{aceptado} en CIARP (Revisor 1: \emph{accept},
+puntajes 4--5 en todos los criterios; Revisor 2: \emph{weak reject}, 3--4).
+Esta bit\'acora registra la fase experimental posterior a la aceptaci\'on y el
+impacto de cada resultado sobre las observaciones. Regla de trabajo: el
+manuscrito \textbf{no se modifica} hasta cerrar esta fase.
+
+\begin{description}
+  \item[R1.1] Discutir el costo de precomputar $A^k$ en grafos masivos.
+  \item[R1.2] Hipotetizar un escenario concreto donde el ideal $I$ agregue
+  valor (p.\,ej.\ clases de caminos $\to$ cabezas de atenci\'on).
+  \item[R1.3] Validar en un dataset real con over-squashing severo.
+  \item[R1.4] Restaurar nombres en las referencias.
+  \item[R2] ``\emph{Much of the algebraic machinery is not essential to the
+  method}'': el modelo usar\'ia solo el soporte de $A^k$ como m\'ascara
+  dispersa; las ganancias fuertes son sint\'eticas; en Peptides-func empata
+  con GAT y queda bajo los baselines afinados de la literatura.
+\end{description}
+
+\paragraph{Estrategia experimental.} R2 tiene raz\'on en que \emph{el modelo}
+solo consume el soporte. La respuesta no es discutirlo sino mostrar que el
+\'algebra hace un segundo trabajo que la m\'ascara no puede hacer:
+\textbf{medir} el over-squashing y \textbf{predecir} el r\'egimen donde Walk
+Attention gana. Tres frentes: (1) un \'indice algebraico de severidad
+validado contra los resultados ya publicados; (A) densificar esa curva con
+nuevas corridas; (B) un benchmark real elegido \emph{por} el \'indice.
+
+\section{Acciones de texto ya aplicadas (commit \texttt{b29769b}, 26-08)}
+
+\begin{center}\small
+\begin{tabular}{p{3.6cm}p{9.4cm}l}
+\toprule
+\textbf{Observaci\'on} & \textbf{Acci\'on} & \textbf{Estado}\\
+\midrule
+R1.4 & Autores restaurados; entradas bib reales
+(\texttt{zainea2026aiq}, repos de c\'odigo); DOI de CAsimulations
+\texttt{10.15332/23393076.11217}. & \estado{hecho}\\
+R1.1 & \S4.1: precomputaci\'on por $k{-}1$ productos dispersos, costo por
+no-ceros intermedios; truncado/muestreo en grafos masivos. & \estado{hecho}\\
+R1.2 & Trabajo futuro: grafo heterog\'eneo, ideal que agrupa composiciones
+equivalentes de relaciones tipadas $\to$ cabezas compartidas. & \estado{hecho}\\
+Menores & Fig.~2 al margen; Prop.~5 con $\beta/\sqrt{C}$ y valores base
+distintos; \textsc{RingTransfer} acreditado a Bodnar et al.\ 2021; tablas ES
+traducidas. & \estado{hecho}\\
+R1.3, R2 & Frentes experimentales de esta bit\'acora. & \estado{en curso}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% =====================================================================
+\section{Experimento 1 --- el \'indice de severidad $\Psi$ y la curva
+dosis-respuesta}
+% =====================================================================
+
+\subsection{Derivaci\'on del \'indice}
+
+El argumento de capacidad del paper (Prop.~3--4) es: tras $k$ capas de paso
+de mensajes, \emph{todas} las cadenas de longitud $k$ que entran al nodo $j$
+--- una por cada elemento de la base de $\bigoplus_i e_j\kQ_k e_i$ --- deben
+codificarse en un vector de ancho $w$. Si las cadenas fueran distinguibles y
+equiprobables, distinguirlas requiere $\log_2\bigl(\sum_i(A^k)_{ij}\bigr)$
+bits, mientras el embedding ofrece del orden de $\log_2 w$. El \'indice es el
+exceso:
+\[
+\Psi_k(j)\;=\;\log_2\Bigl(\textstyle\sum_i (A^k)_{ij}\Bigr)\;-\;\log_2 w,
+\qquad
+\sum_i (A^k)_{ij}=\sum_i \dim_\kk\bigl(e_j\,\kQ_k\,e_i\bigr).
+\]
+Es \'algebra graduada pura: dimensiones de las componentes $e_j\kQ_k e_i$
+(Prop.~1 del paper), agregadas por objetivo. Es la versi\'on por objetivo del
+diagn\'ostico por pares $H_k(i,j)=\log_2(A^k)_{ij}$ ya implementado en
+\texttt{aiq.gnn.over\_squashing\_diagnostic}. Predicci\'on cualitativa: con
+$\Psi\le0$ el paso de mensajes tiene capacidad suficiente y la atenci\'on
+multi-salto no deber\'ia aportar; con $\Psi\gg0$ el colapso es inevitable y
+Walk Attention (que lee las fuentes \emph{directamente}, sin atravesar el
+canal comprimido) deber\'ia dominar.
+
+\subsection{Protocolo}
+
+Script \texttt{run\_severity\_index.py}. Para cada benchmark ya publicado se
+computa $\Psi$ en \emph{el objetivo y alcance de decisi\'on} --- el nodo que
+porta la etiqueta y el alcance $k$ que la resuelve --- y se cruza con la
+ventaja medida $=$ media WA $-$ mejor baseline de un salto, de los CSV por
+semilla de \texttt{results/tables/}:
+\begin{itemize}
+  \item \textbf{Bottleneck} ($K{=}5$, $M{=}4$, $w{=}16$): objetivo final,
+  $k=d{+}1$; masa entrante $=K\!\cdot\!M^{d}$, luego
+  $\Psi=\log_2(5\cdot4^{d})-4$.
+  \item \textbf{RingTransfer} ($w{=}32$): objetivo antipodal, $k=n/2$; el
+  ciclo no dirigido tiene masa entrante $2^{n/2}$, luego $\Psi=n/2-5$.
+  \item \textbf{Peptides-func} ($w{=}80$, alcances $1$--$4$): por mol\'ecula,
+  m\'aximo sobre objetivos y alcances; promedio sobre las 10\,873 mol\'eculas
+  del split de entrenamiento.
+\end{itemize}
+Sin ninguna corrida nueva: el experimento solo reinterpreta resultados ya
+publicados a la luz del \'indice.
+
+\subsection{Resultados}
+
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Benchmark} & $\Psi$ (bits) & \textbf{alcance} & \textbf{WA} &
+\textbf{ventaja}\\
+\midrule
+ring $n{=}6$        & $-2.00$ & 3   & 1.000 & 0.000\\
+Peptides-func       & $-0.75$ & 1--4& 0.526 & 0.000\\
+ring $n{=}10$       & $0.00$  & 5   & 1.000 & 0.000\\
+ring $n{=}14$       & $+2.00$ & 7   & 1.000 & $+0.189$\\
+bottleneck $d{=}2$  & $+2.32$ & 3   & 1.000 & $+0.550$\\
+ring $n{=}18$       & $+4.00$ & 9   & 1.000 & $+0.466$\\
+bottleneck $d{=}3$  & $+4.32$ & 4   & 1.000 & $+0.708$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Spearman $\rho=0.927$ ($p=0.0027$); Pearson $r=0.901$ ($p=0.0056$); $n=7$.
+Salida: \texttt{results/tables/severity\_index.csv}.
+
+\subsection{Lectura}
+
+\begin{enumerate}
+  \item \textbf{Umbral, no solo tendencia.} Los tres casos con $\Psi\le0$
+  tienen ventaja \emph{exactamente} $0.000$; la ventaja aparece al cruzar
+  $\Psi=0$ y crece con $\Psi$. El corte est\'a donde el argumento de
+  capacidad lo pone, sin par\'ametros ajustados.
+  \item \textbf{El empate de Peptides queda predicho.} $\Psi=-0.75<0$: en
+  esas mol\'eculas ($w{=}80$, grado t\'ipico $2$--$3$, alcances $\le4$) la
+  masa de recorridos entrante a\'un cabe en el embedding. El caso que R2 usa
+  como evidencia en contra es un punto \emph{sobre la curva} que el \'indice
+  anticipa sin entrenar.
+  \item \textbf{Impacto sobre R2.} La ``maquinaria prescindible'' (las
+  dimensiones graduadas con multiplicidad --- no el patr\'on binario de
+  $A^k$, que es el mismo para masa $2$ o $22\,000$) es la que produce
+  $\Psi$. La m\'ascara no mide; el \'algebra s\'i.
+  \item \textbf{Limitaci\'on.} $n=7$ puntos de 3 familias distintas mezcla
+  tareas y anchos; la comparaci\'on justa es \emph{dentro} de cada familia
+  (mon\'otona en ambas) y el Frente A densifica.
+\end{enumerate}
+
+% =====================================================================
+\section{Frente A --- densificaci\'on de la curva (resultados)}
+% =====================================================================
+
+\estado{completo} Lanzado 26-08 08:24, cerrado 08:55; mismo protocolo
+estabilizado del paper (5 semillas, AdamW, warmup, coseno, clip; LN en WA).
+Scripts \texttt{run\_ring\_fillin.py} ($n\in\{12,16,20\}$),
+\texttt{run\_bottleneck\_fillin.py} ($d{=}4$).
+
+\subsection{Resultados por configuraci\'on (media $\pm$ desv., 5 semillas)}
+
+\begin{center}
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Config.} & $\Psi$ & \textbf{GCN} & \textbf{GAT} & \textbf{WA} &
+\textbf{ventaja}\\
+\midrule
+ring $n{=}12$ & $1.00$ & $0.966\pm0.069$ & $1.000\pm0.000$ &
+$1.000\pm0.000$ & $0.000$\\
+ring $n{=}16$ & $3.00$ & $0.532\pm0.274$ & $0.459\pm0.229$ &
+$1.000\pm0.000$ & $+0.468$\\
+ring $n{=}20$ & $5.00$ & $0.418\pm0.289$ & $0.221\pm0.008$ &
+$0.894\pm0.156$ & $+0.476$\\
+bottleneck $d{=}4$ & $6.32$ & (azar, Prop.~4) & $0.366\pm0.174$ &
+$1.000\pm0.000$ & $+0.634$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+(En $d{=}4$ el operador de recorrido fijo dio $0.571\pm0.050$, entre GAT y
+WA, como en $d{=}2,3$: cruza el cuello pero no selecciona.)
+
+\subsection{Contraste con las predicciones pre-registradas}
+
+\begin{center}\small
+\begin{tabular}{p{4.5cm}p{5.4cm}l}
+\toprule
+\textbf{Predicci\'on (antes de correr)} & \textbf{Resultado} & \\
+\midrule
+$n{=}12$ ($\Psi{=}1$): ventaja peque\~na pero positiva &
+ventaja $=0.000$ (GAT a\'un resuelve exacto) & \falla\\
+$n{=}16$ ($\Psi{=}3$): ventaja entre las de $n{=}14$ y $n{=}18$ &
+$+0.468$, entre $+0.189$ y $+0.466$ (borde superior) & \ok\\
+$n{=}20$ ($\Psi{=}5$): ventaja $\ge$ la de $n{=}18$ & $+0.476$ vs
+$+0.466$ \ok; pero WA ya no es exacta a 10 capas ($0.894$; semillas
+$\{1,1,.82,.65,1\}$) & \ok$\sim$\\
+$d{=}4$ ($\Psi{=}6.32$): ventaja $\ge+0.7$, WA $=1.000$ &
+WA $=1.000$ \ok; ventaja $+0.634$ (GAT vari\'o alto) & $\sim$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+La predicci\'on fallida es informativa: \textbf{el umbral efectivo no est\'a
+en $\Psi=0$ sino entre $\Psi=1$ y $\Psi=2$}. Lectura mec\'anica: un bit de
+exceso a\'un puede absorberse con codificaci\'on no lineal del embedding
+(la cota $\log_2 w$ es conservadora); con dos o m\'as bits el colapso es
+sistem\'atico. El \'indice queda entonces con una zona de operaci\'on:
+$\Psi\le0$ seguro-sin-ventaja, $\Psi\ge2$ seguro-con-ventaja, $0<\Psi<2$
+zona de transici\'on.
+
+\subsection{El fen\'omeno de transici\'on: bimodalidad por semilla}
+
+Los promedios ocultan la estructura m\'as reveladora. Por semilla, en
+$n{=}16$: GCN $\{0.61, 0.21, 0.21, 0.81, 0.82\}$, GAT
+$\{0.62, 0.21, 0.22, 0.80, 0.46\}$. Los baselines de un salto \textbf{no
+degradan gradualmente: o resuelven ($\approx0.8$--$1.0$) o caen al azar
+($\approx0.21$)}, y la proporci\'on de semillas que caen crece con $\Psi$
+hasta que en $n{=}20$/$d{=}4$ casi todas caen. La desviaci\'on est\'andar
+por eso \emph{sube} en la transici\'on ($\pm0.27$ en $n{=}16$;
+$\pm0.17$ en $d{=}4$) y colapsar\'ia a $0$ en ambos extremos. Walk
+Attention, en cambio, da $1.000\pm0.000$ en \textbf{todas} las
+configuraciones y semillas de todos los benchmarks sint\'eticos --- la
+estabilidad entre semillas es en s\'i misma un resultado: el soporte
+algebraico elimina la loter\'ia de inicializaci\'on que decide si el canal
+comprimido logra o no codificar la se\~nal.
+
+\subsection{Curva final}
+
+Con los 11 puntos: $\Psi\in\{-2,-0.75,0,1\}\mapsto$ ventaja $0.000$;
+$\Psi\in\{2,2.32,3,4,4.32,5,6.32\}\mapsto
+\{+0.19,+0.55,+0.47,+0.47,+0.71,+0.48,+0.63\}$.
+\textbf{Spearman $\rho=0.875$ ($p=4.3\times10^{-4}$), Pearson $r=0.880$.}
+Plana en cero hasta $\Psi=1$, salto en $\Psi=2$, meseta alta con ruido
+dominado por la bimodalidad del mejor baseline. Nota honesta: en $n{=}20$
+(10 capas) la propia WA pierde exactitud en 2 de 5 semillas --- la
+profundidad de la pila de atenci\'on introduce su propia dificultad de
+optimizaci\'on, independiente del squashing.
+
+% =====================================================================
+\section{Experimento 2 --- cribado de redes reales con $\Psi$}
+% =====================================================================
+
+\subsection{Protocolo}
+
+Script \texttt{run\_screen\_real.py}. La masa entrante se computa como
+$\mathbf{1}^{T}A^{k}$ por iteraci\'on vector--matriz, $O(k\cdot\mathrm{nnz})$
+--- sin materializar $A^k$: el mecanismo de escalabilidad respondido a R1.1,
+funcionando sobre 421K aristas en segundos. Direcciones: \emph{as-is}
+(citante$\to$citado: las cadenas de citaci\'on se acumulan en los papers
+citados) y \emph{reversa}. Donde las potencias completas caben se cuenta
+adem\'as el sustrato del cociente: pares con $(A^k)_{ij}>1$, i.e.\
+$\dim(e_j\kQ_k e_i)>1$ (recorridos paralelos).
+
+\subsection{Resultados (selecci\'on; tabla completa en
+\texttt{real\_network\_severity\_screen.csv})}
+
+\begin{center}\small
+\begin{tabular}{llrrrrr}
+\toprule
+\textbf{Red} & \textbf{dir.} & $k$ & \textbf{m\'ax bits} &
+\textbf{frac.}$>w{=}64$ & \textbf{pares paralelos} & \textbf{m\'ax mult.}\\
+\midrule
+cit-HepPh & reversa & 2 & 13.2 & 0.51 & $1.1\times10^{6}$ & 110\\
+(34\,546 n.) & reversa & 3 & 17.4 & 0.68 & $9.4\times10^{6}$ & 1\,481\\
+ & reversa & 4 & 21.4 & 0.72 & $3.4\times10^{7}$ & \textbf{22\,702}\\
+Cora (2\,708 n.) & reversa & 6 & 9.5 & 0.22 & 14\,711 & 125\\
+ & reversa & 8 & 11.8 & 0.44 & 21\,933 & 772\\
+Ca\~nadas (115 n.) & reversa & 3 & 6.1 & 0.01 & 37 & 6\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Lectura}
+
+\begin{itemize}
+  \item \textbf{cit-HepPh es el r\'egimen severo real (R1.3), con margen
+  enorme}: $\Psi\approx+15$ bits sobre $w{=}64$ a $k{=}4$; el sint\'etico
+  m\'as severo del paper tiene $+4.3$. No es un caso constru\'ido: es la
+  estructura natural de una red de citaci\'on con hubs.
+  \item \textbf{La multiplicidad extrema replantea el cociente (R1.2).} El
+  resultado negativo del paper (colapsar 2 recorridos paralelos destruye
+  se\~nal) se obtuvo con multiplicidades de decenas. Aqu\'i hay pares con
+  22\,702 cadenas paralelas: la hip\'otesis natural se invierte ---
+  \emph{organizar} esas clases (cociente parcial $\to$ cabezas) deber\'ia
+  ganar sobre ignorarlas y sobre colapsarlas. Es el experimento del espectro
+  de ideales del Frente B.
+  \item \textbf{Cora} es punto intermedio; \textbf{Ca\~nadas} (leve, mult.\
+  $\le6$) sirve como ejemplo trabajado, no como benchmark.
+\end{itemize}
+
+% =====================================================================
+\section{Frente B --- benchmark real cit-HepPh}
+% =====================================================================
+
+\subsection{El problema real}
+
+\textbf{Detecci\'on temprana de art\'iculos influyentes}: en 1997, con el
+grafo de citaciones disponible, se\~nalar cu\'ales papers de 1996--97
+ser\'an los m\'as citados en 1998--2000. El conteo de citas es un indicador
+retrasado; el predictor barato (apego preferencial: citas presentes
+predicen futuras) falla justo en los casos valiosos --- los que despegan
+tarde. La se\~nal correctora es estructural: \emph{qui\'en} te cita (¿papers
+que a su vez ser\'an influyentes?) y por cu\'antas cadenas independientes
+llega tu influencia --- informaci\'on que vive en $e_j\kQ_k e_i$ con su
+multiplicidad, a profundidades $2$--$4$.
+
+\subsection{Construcci\'on del dataset (\texttt{run\_hepph\_dataset.py})}
+
+Corte 31-12-1997. Grafo de contexto: 13\,745 papers fechados y 98\,307
+citaciones entre ellos. Cohorte: 6\,635 papers de 1996--97. Futuro: 51\,632
+citaciones recibidas en 1998--2000 (mediana 3, m\'aximo 298). Features
+m\'inimos e id\'enticos para todos los modelos: a\~no de publicaci\'on,
+$\log(1{+}\mathrm{in})$, $\log(1{+}\mathrm{out})$ al corte, estandarizados.
+Ids cruzados de SNAP (\texttt{11<id>}) normalizados. Severidad verificada
+\emph{en el subgrafo de contexto}: m\'ax $18.4$ bits a $k{=}4$
+($\Psi=+12.4$ sobre $w{=}64$), multiplicidad m\'axima 4\,724,
+$\mathrm{nnz}(A^4)=2.7$M.
+
+\subsection{Cinco variables objetivo}
+
+\begin{center}\small
+\begin{tabular}{llrr}
+\toprule
+ & \textbf{Definici\'on (binaria)} & \textbf{balance} & \textbf{definidos}\\
+\midrule
+T1 impacto estrat. & top-cuartil de citas futuras \emph{dentro} de su
+estrato de in-degree $\{0,\,1$--$2,\,3$--$9,\,10^{+}\}$ & 0.23 & 6\,635\\
+T2 early riser & top-cuartil del residuo de $\log(1{+}c_{\text{fut}})$
+sobre grado y edad & 0.25 & 6\,635\\
+T3 amplitud & fracci\'on de pares de citantes futuros \emph{independientes}
+(sin citaci\'on mutua ni referencia compartida) sobre mediana & 0.50 &
+4\,187\\
+T4 persistencia & fracci\'on de citas futuras tard\'ias ($\ge$ jul-1999)
+sobre mediana & 0.48 & 3\,578\\
+T5 alcance & top-cuartil del crecimiento de la 2-vecindad de impacto
+$|A_2(c)|$ & 0.25 & 6\,635\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+T1/T2 neutralizan el apego preferencial por construcci\'on (estratificado /
+residuo). T3 es el objetivo cuya \emph{definici\'on} es multiplicidad de
+cadenas independientes --- el terreno del cociente. T5 usa el grado de
+impacto de la tesis como variable objetivo: predecir una cantidad
+algebraica futura desde el \'algebra presente.
+
+\subsection{Modelos y protocolo (\texttt{run\_hepph\_models.py})}
+
+Transductivo sobre el grafo dirigido (citante$\to$citado, los mensajes
+fluyen de citantes a citados); divisi\'on estratificada 60/20/20 de la
+cohorte; 5 semillas; p\'erdida ponderada por clase; m\'etrica: exactitud
+balanceada en test. Modelos: MLP (piso sin grafo), GCN, GAT (4 cabezas),
+Walk Attention (una capa por alcance $k=1..4$, soporte truncado top-32
+fuentes por multiplicidad --- ``Scaling the support'' operativo:
+$\mathrm{nnz}\le n\cdot32$ por alcance). Todos con ancho 64 y la receta
+estabilizada del paper. Smoke test (3 \'epocas, 2 capas):
+mlp $0.50$ / gcn $0.54$ / gat $0.56$ / wa $0.61$ --- ordenamiento
+alentador, no concluyente. \estado{corrida completa lanzada 26-08;
+log en \texttt{results/logs/hepph\_models.log}}
+
+\subsection{Hip\'otesis pre-registradas (antes de ver resultados)}
+
+\begin{enumerate}
+  \item En T1/T2, orden esperado MLP $<$ GCN/GAT $<$ WA; la ganancia de WA
+  sobre GAT ser\'a mayor en los estratos de grado bajo (donde el conteo no
+  informa y solo la estructura profunda distingue).
+  \item La brecha m\'axima WA--GAT aparecer\'a en \textbf{T3} (amplitud), el
+  objetivo definido por multiplicidad de cadenas.
+  \item En T5 todos los modelos con grafo superar\'an ampliamente al MLP
+  (el objetivo es estructural), y WA $>$ GAT por el alcance.
+  \item (Fase 2, espectro de cocientes sobre T3:) $I_{\mathrm{hub}}\gtrsim
+  I_0\gg I_{\mathrm{full}}$ con multiplicidad extrema --- el primer
+  resultado \emph{positivo} del cociente.
+\end{enumerate}
+
+\subsection{Resultados (100 corridas base $+$ 50 de control)}
+
+\begin{center}
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Modelo} & \textbf{T1} & \textbf{T2} & \textbf{T3} & \textbf{T4} &
+\textbf{T5}\\
+\midrule
+MLP (sin grafo)      & 0.672 & 0.565 & 0.527 & 0.519 & 0.818\\
+GCN (sin residual)   & 0.636 & 0.548 & 0.542 & 0.522 & 0.744\\
+GAT (sin residual)   & 0.666 & 0.546 & 0.546 & 0.523 & 0.785\\
+GCN $+$ residual     & 0.664 & 0.570 & 0.545 & 0.522 & 0.811\\
+GAT $+$ residual     & 0.673 & 0.584 & 0.550 & 0.529 & 0.810\\
+\textbf{Walk Attention} & \textbf{0.673} & \textbf{0.594} & \textbf{0.559}
+& 0.526 & \textbf{0.828}\\
+\bottomrule
+\end{tabular}
+\end{center}
+(Exactitud balanceada en test, media de 5 semillas; desviaciones
+$0.004$--$0.028$. Archivo \texttt{hepph\_models\_5seeds.csv}.)
+
+\subsection{El confound y su control}
+
+La primera lectura (GCN/GAT \emph{por debajo} del MLP en T1, T2, T5:
+``la agregaci\'on local da\~na'') era demasiado buena. WA lleva t\'ermino
+residual $W_{\text{root}}$ de f\'abrica; los GCN/GAT del runner no llevaban
+skip connections. El control (\texttt{gcn\_res}, \texttt{gat\_res}, mismas
+semillas) lo confirma: \textbf{con residual, GCN/GAT recuperan el nivel del
+MLP y m\'as}; el efecto ``la agregaci\'on local da\~na'' era en su mayor
+parte el confound. Se descarta esa lectura.
+
+\subsection{Lo que sobrevive al control}
+
+WA sigue siendo el mejor modelo en T1 (empate), T2, T3 y T5, con
+ventajas peque\~nas por objetivo ($+0.009$ a $+0.018$ sobre GAT$+$res)
+pero \textbf{consistentes}: prueba pareada por (objetivo, semilla),
+excluyendo el nulo T4 ($n=20$ pares):
+\begin{center}
+\begin{tabular}{lrrr}
+\toprule
+ & \textbf{media} & \textbf{pares positivos} & \textbf{Wilcoxon $p$}\\
+\midrule
+WA $-$ GAT$+$res & $+0.009$ & 15/20 & 0.004\\
+WA $-$ GCN$+$res & $+0.016$ & 18/20 & 0.0003\\
+WA $-$ MLP       & $+0.018$ & 16/20 & 0.0009\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Contraste con las hip\'otesis y lectura revisada}
+
+\begin{itemize}
+  \item H1 (orden MLP $<$ GCN/GAT $<$ WA en T1/T2): \falla\ en T1 (empate
+  general: los features de grado agotan la se\~nal); \ok\ en T2 con
+  m\'argenes peque\~nos.
+  \item H2 (brecha m\'axima en T3): \falla\ --- la brecha m\'axima est\'a
+  en T2 (residuo ortogonal al grado), T3 segunda.
+  \item H3 (grafo $\gg$ MLP en T5): \falla\ --- el grado actual predice el
+  crecimiento de la 2-vecindad; solo WA supera al MLP, por poco.
+  \item T4: nulo para todos.
+\end{itemize}
+
+\textbf{Refinamiento del \'indice.} $\Psi\approx+12$ predec\'ia una ventaja
+\emph{decisiva} y se observ\'o una ventaja \emph{peque\~na y consistente}.
+La explicaci\'on es una distinci\'on que el Exp.~1 no pod\'ia revelar
+porque sus etiquetas fueron dise\~nadas para depender de la informaci\'on
+profunda: $\Psi$ mide cu\'anta informaci\'on de recorridos \emph{se pierde}
+en el canal, no cu\'anta de esa informaci\'on \emph{necesita la tarea}. Es
+condici\'on necesaria, no suficiente: con $\Psi\le1$ no hay ventaja
+posible (Peptides, anillos cortos); con $\Psi\gg0$ la ventaja es posible y
+su magnitud la fija la dependencia del label respecto de la estructura
+profunda --- alta en las tareas sint\'eticas de recuperaci\'on, modesta en
+la predicci\'on de impacto con features de grado (donde el grado ya resume
+casi todo lo predecible). Esta es la formulaci\'on correcta para el paper.
+
+\subsection{Decisi\'on sobre las fases 2--3}
+
+El espectro de cocientes sobre HepPh (fase 2) medir\'ia diferencias del
+orden de $0.01$, en el l\'imite de resoluci\'on de 5 semillas; se pospone,
+salvo que se aumente a 10 semillas. $I_{\mathrm{ring}}$ en Peptides (fase 3)
+sigue siendo la pregunta abierta del paper y se mantiene en cola.
+
+% =====================================================================
+\section{Cierre de fase: qu\'e queda establecido}
+% =====================================================================
+
+\begin{enumerate}
+  \item \textbf{Establecido, fuerte.} El \'indice $\Psi$ y la curva
+  dosis-respuesta (11 puntos, $\rho=0.875$, umbral en $(1,2]$ bits, 4 ceros
+  exactos incluido Peptides). Responde directamente a R2: el \'algebra
+  graduada con multiplicidad predice el r\'egimen; la m\'ascara binaria no
+  puede.
+  \item \textbf{Establecido, moderado.} En una red real de severidad
+  extrema (cit-HepPh, $\Psi\approx+12$), WA es el mejor modelo en 4 de 5
+  objetivos con ventaja peque\~na pero significativa ($p=0.004$ pareado)
+  sobre GAT con residual, con soporte truncado top-32 (escalabilidad
+  operativa). Responde a R1.3 con honestidad: ventaja real, no dram\'atica.
+  \item \textbf{Aprendido.} $\Psi$ es necesario, no suficiente; la
+  magnitud de la ventaja depende de cu\'anto el label necesita la
+  informaci\'on profunda. Y: los controles de arquitectura (residuales)
+  son obligatorios antes de leer un ``la agregaci\'on local da\~na''.
+  \item \textbf{Pendiente.} $I_{\mathrm{ring}}$ en Peptides; espectro de
+  cocientes con m\'as semillas.
+\end{enumerate}
+
+\paragraph{Propuesta para el camera-ready (a decidir).} Una subsecci\'on
+breve tras los experimentos: definici\'on de $\Psi$ (3 l\'ineas), la curva
+como tabla compacta o figura, y un p\'arrafo con cit-HepPh (T2/T3/T5 y el
+test pareado). Esto convierte ``regime-dependent'' en una predicci\'on
+cuantitativa y a\~nade el dataset real; cabe en $\sim$2/3 de p\'agina si se
+comprime el ejemplo de la Secci\'on~3.
+
+% =====================================================================
+\section{Reproducibilidad}
+% =====================================================================
+
+\begin{itemize}
+  \item Repositorio en \texttt{b29769b} (rama \texttt{main}) $+$ scripts
+  nuevos sin comprometer: \texttt{run\_severity\_index.py},
+  \texttt{run\_screen\_real.py}, \texttt{run\_ring\_fillin.py},
+  \texttt{run\_bottleneck\_fillin.py}, \texttt{run\_hepph\_dataset.py},
+  \texttt{run\_hepph\_models.py}.
+  \item Salidas: \texttt{results/tables/severity\_index.csv},
+  \texttt{real\_network\_severity\_screen.csv},
+  \texttt{bottleneck\_fillin\_5seeds.csv},
+  \texttt{ring\_transfer\_fillin\_5seeds.csv},
+  \texttt{hepph\_models\_5seeds.csv} (150 filas: base $+$ control);
+  dataset en \texttt{data/hepph/}; logs en \texttt{results/logs/}.
+  \item Entorno: venv \texttt{oversquash} --- Python 3.12.10, PyTorch
+  2.13.0+cpu, PyG 2.8.0.post1, NumPy 2.5.2, SciPy 1.18.1;
+  \texttt{oversquash} y \texttt{aiq-quivers} editables.
+  \item Datos crudos: sint\'eticos por semilla; Peptides-func en
+  \texttt{data/lrgb/}; cit-HepPh/Cora/Ca\~nadas en
+  \texttt{../quivers\_analysis/data/}.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,39 @@
+[d=2 s=0] gat       acc=0.317  (1 min elapsed)
+[d=2 s=0] walkraw   acc=0.672  (2 min elapsed)
+[d=2 s=0] walkattn  acc=1.000  (2 min elapsed)
+[d=2 s=1] gat       acc=0.841  (3 min elapsed)
+[d=2 s=1] walkraw   acc=0.546  (3 min elapsed)
+[d=2 s=1] walkattn  acc=1.000  (4 min elapsed)
+[d=2 s=2] gat       acc=0.395  (4 min elapsed)
+[d=2 s=2] walkraw   acc=0.566  (5 min elapsed)
+[d=2 s=2] walkattn  acc=1.000  (5 min elapsed)
+[d=2 s=3] gat       acc=0.384  (6 min elapsed)
+[d=2 s=3] walkraw   acc=0.798  (7 min elapsed)
+[d=2 s=3] walkattn  acc=1.000  (7 min elapsed)
+[d=2 s=4] gat       acc=0.311  (8 min elapsed)
+[d=2 s=4] walkraw   acc=0.506  (9 min elapsed)
+[d=2 s=4] walkattn  acc=1.000  (9 min elapsed)
+[d=3 s=0] gat       acc=0.598  (10 min elapsed)
+[d=3 s=0] walkraw   acc=0.336  (10 min elapsed)
+[d=3 s=0] walkattn  acc=1.000  (11 min elapsed)
+[d=3 s=1] gat       acc=0.203  (11 min elapsed)
+[d=3 s=1] walkraw   acc=0.454  (12 min elapsed)
+[d=3 s=1] walkattn  acc=1.000  (12 min elapsed)
+[d=3 s=2] gat       acc=0.217  (13 min elapsed)
+[d=3 s=2] walkraw   acc=0.535  (14 min elapsed)
+[d=3 s=2] walkattn  acc=1.000  (14 min elapsed)
+[d=3 s=3] gat       acc=0.216  (14 min elapsed)
+[d=3 s=3] walkraw   acc=0.669  (15 min elapsed)
+[d=3 s=3] walkattn  acc=1.000  (16 min elapsed)
+[d=3 s=4] gat       acc=0.224  (16 min elapsed)
+[d=3 s=4] walkraw   acc=0.512  (17 min elapsed)
+[d=3 s=4] walkattn  acc=1.000  (18 min elapsed)
+
+=== SUMMARY (mean +- std over 5 seeds) ===
+  d=2 gat       0.450 +- 0.222
+  d=2 walkattn  1.000 +- 0.000
+  d=2 walkraw   0.618 +- 0.118
+  d=3 gat       0.292 +- 0.171
+  d=3 walkattn  1.000 +- 0.000
+  d=3 walkraw   0.501 +- 0.122
+saved results/tables/bottleneck_main_5seeds.csv

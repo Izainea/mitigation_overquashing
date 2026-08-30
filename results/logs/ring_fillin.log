@@ -1,0 +1,57 @@
+[n=12 s=0] gcn       acc=1.000  (0 min elapsed)
+[n=12 s=0] gat       acc=1.000  (0 min elapsed)
+[n=12 s=0] walkattn  acc=1.000  (1 min elapsed)
+[n=12 s=1] gcn       acc=1.000  (1 min elapsed)
+[n=12 s=1] gat       acc=1.000  (1 min elapsed)
+[n=12 s=1] walkattn  acc=1.000  (2 min elapsed)
+[n=12 s=2] gcn       acc=1.000  (2 min elapsed)
+[n=12 s=2] gat       acc=1.000  (2 min elapsed)
+[n=12 s=2] walkattn  acc=1.000  (3 min elapsed)
+[n=12 s=3] gcn       acc=1.000  (3 min elapsed)
+[n=12 s=3] gat       acc=1.000  (3 min elapsed)
+[n=12 s=3] walkattn  acc=1.000  (4 min elapsed)
+[n=12 s=4] gcn       acc=0.828  (4 min elapsed)
+[n=12 s=4] gat       acc=1.000  (4 min elapsed)
+[n=12 s=4] walkattn  acc=1.000  (5 min elapsed)
+[n=16 s=0] gcn       acc=0.614  (5 min elapsed)
+[n=16 s=0] gat       acc=0.616  (6 min elapsed)
+[n=16 s=0] walkattn  acc=1.000  (7 min elapsed)
+[n=16 s=1] gcn       acc=0.208  (7 min elapsed)
+[n=16 s=1] gat       acc=0.208  (7 min elapsed)
+[n=16 s=1] walkattn  acc=1.000  (8 min elapsed)
+[n=16 s=2] gcn       acc=0.208  (8 min elapsed)
+[n=16 s=2] gat       acc=0.217  (9 min elapsed)
+[n=16 s=2] walkattn  acc=1.000  (10 min elapsed)
+[n=16 s=3] gcn       acc=0.812  (10 min elapsed)
+[n=16 s=3] gat       acc=0.799  (10 min elapsed)
+[n=16 s=3] walkattn  acc=1.000  (11 min elapsed)
+[n=16 s=4] gcn       acc=0.817  (12 min elapsed)
+[n=16 s=4] gat       acc=0.455  (12 min elapsed)
+[n=16 s=4] walkattn  acc=1.000  (13 min elapsed)
+[n=20 s=0] gcn       acc=0.583  (13 min elapsed)
+[n=20 s=0] gat       acc=0.217  (14 min elapsed)
+[n=20 s=0] walkattn  acc=1.000  (15 min elapsed)
+[n=20 s=1] gcn       acc=0.217  (15 min elapsed)
+[n=20 s=1] gat       acc=0.217  (16 min elapsed)
+[n=20 s=1] walkattn  acc=1.000  (17 min elapsed)
+[n=20 s=2] gcn       acc=0.217  (17 min elapsed)
+[n=20 s=2] gat       acc=0.217  (18 min elapsed)
+[n=20 s=2] walkattn  acc=0.817  (19 min elapsed)
+[n=20 s=3] gcn       acc=0.850  (19 min elapsed)
+[n=20 s=3] gat       acc=0.234  (20 min elapsed)
+[n=20 s=3] walkattn  acc=0.654  (22 min elapsed)
+[n=20 s=4] gcn       acc=0.223  (22 min elapsed)
+[n=20 s=4] gat       acc=0.223  (23 min elapsed)
+[n=20 s=4] walkattn  acc=1.000  (26 min elapsed)
+
+=== SUMMARY (mean +- std over 5 seeds) ===
+  n=12 gat       1.000 +- 0.000
+  n=12 gcn       0.966 +- 0.077
+  n=12 walkattn  1.000 +- 0.000
+  n=16 gat       0.459 +- 0.256
+  n=16 gcn       0.532 +- 0.307
+  n=16 walkattn  1.000 +- 0.000
+  n=20 gat       0.221 +- 0.008
+  n=20 gcn       0.418 +- 0.289
+  n=20 walkattn  0.894 +- 0.156
+saved results/tables/ring_transfer_fillin_5seeds.csv

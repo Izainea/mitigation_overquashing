@@ -1,0 +1,28 @@
+sanity check passed: walk_eff != walk_raw at some range >= 2
+[d=2 s=0] walkraw   acc=0.672  (1 min elapsed)
+[d=2 s=0] quotient  acc=0.447  (2 min elapsed)
+[d=2 s=1] walkraw   acc=0.546  (3 min elapsed)
+[d=2 s=1] quotient  acc=0.384  (3 min elapsed)
+[d=2 s=2] walkraw   acc=0.566  (4 min elapsed)
+[d=2 s=2] quotient  acc=0.366  (5 min elapsed)
+[d=2 s=3] walkraw   acc=0.798  (6 min elapsed)
+[d=2 s=3] quotient  acc=0.396  (7 min elapsed)
+[d=2 s=4] walkraw   acc=0.506  (7 min elapsed)
+[d=2 s=4] quotient  acc=0.354  (8 min elapsed)
+[d=3 s=0] walkraw   acc=0.336  (8 min elapsed)
+[d=3 s=0] quotient  acc=0.218  (9 min elapsed)
+[d=3 s=1] walkraw   acc=0.454  (10 min elapsed)
+[d=3 s=1] quotient  acc=0.323  (10 min elapsed)
+[d=3 s=2] walkraw   acc=0.535  (11 min elapsed)
+[d=3 s=2] quotient  acc=0.319  (12 min elapsed)
+[d=3 s=3] walkraw   acc=0.669  (13 min elapsed)
+[d=3 s=3] quotient  acc=0.425  (14 min elapsed)
+[d=3 s=4] walkraw   acc=0.512  (15 min elapsed)
+[d=3 s=4] quotient  acc=0.224  (15 min elapsed)
+
+=== SUMMARY (mean +- std over 5 seeds) ===
+  d=2 quotient  0.390 +- 0.036
+  d=2 walkraw   0.618 +- 0.118
+  d=3 quotient  0.302 +- 0.085
+  d=3 walkraw   0.501 +- 0.122
+saved results/tables/quotient_ablation_5seeds.csv

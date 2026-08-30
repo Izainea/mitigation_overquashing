@@ -1,0 +1,67 @@
+graph: 13745 nodes, 98307 edges; targets: ['t1', 't2', 't3', 't4', 't5']
+building walk masks (top-32)...
+  mask k=1: nnz=83260
+  mask k=2: nnz=166675
+  mask k=3: nnz=193921
+  mask k=4: nnz=198208
+[t1 s=0] gcn_res   test=0.674  (0 min)
+[t1 s=1] gcn_res   test=0.659  (0 min)
+[t1 s=2] gcn_res   test=0.634  (1 min)
+[t1 s=3] gcn_res   test=0.663  (1 min)
+[t1 s=4] gcn_res   test=0.688  (1 min)
+  t1 gcn_res   0.664 +- 0.018
+[t1 s=0] gat_res   test=0.673  (1 min)
+[t1 s=1] gat_res   test=0.666  (2 min)
+[t1 s=2] gat_res   test=0.654  (2 min)
+[t1 s=3] gat_res   test=0.660  (3 min)
+[t1 s=4] gat_res   test=0.711  (3 min)
+  t1 gat_res   0.673 +- 0.020
+[t2 s=0] gcn_res   test=0.559  (3 min)
+[t2 s=1] gcn_res   test=0.570  (4 min)
+[t2 s=2] gcn_res   test=0.555  (4 min)
+[t2 s=3] gcn_res   test=0.590  (4 min)
+[t2 s=4] gcn_res   test=0.576  (4 min)
+  t2 gcn_res   0.570 +- 0.013
+[t2 s=0] gat_res   test=0.567  (4 min)
+[t2 s=1] gat_res   test=0.580  (5 min)
+[t2 s=2] gat_res   test=0.575  (5 min)
+[t2 s=3] gat_res   test=0.602  (5 min)
+[t2 s=4] gat_res   test=0.597  (6 min)
+  t2 gat_res   0.584 +- 0.013
+[t3 s=0] gcn_res   test=0.541  (6 min)
+[t3 s=1] gcn_res   test=0.533  (6 min)
+[t3 s=2] gcn_res   test=0.560  (6 min)
+[t3 s=3] gcn_res   test=0.541  (6 min)
+[t3 s=4] gcn_res   test=0.549  (7 min)
+  t3 gcn_res   0.545 +- 0.009
+[t3 s=0] gat_res   test=0.537  (7 min)
+[t3 s=1] gat_res   test=0.563  (7 min)
+[t3 s=2] gat_res   test=0.553  (8 min)
+[t3 s=3] gat_res   test=0.536  (8 min)
+[t3 s=4] gat_res   test=0.561  (8 min)
+  t3 gat_res   0.550 +- 0.012
+[t4 s=0] gcn_res   test=0.533  (9 min)
+[t4 s=1] gcn_res   test=0.522  (9 min)
+[t4 s=2] gcn_res   test=0.512  (9 min)
+[t4 s=3] gcn_res   test=0.521  (9 min)
+[t4 s=4] gcn_res   test=0.524  (9 min)
+  t4 gcn_res   0.522 +- 0.007
+[t4 s=0] gat_res   test=0.534  (9 min)
+[t4 s=1] gat_res   test=0.504  (10 min)
+[t4 s=2] gat_res   test=0.506  (10 min)
+[t4 s=3] gat_res   test=0.559  (10 min)
+[t4 s=4] gat_res   test=0.544  (10 min)
+  t4 gat_res   0.529 +- 0.021
+[t5 s=0] gcn_res   test=0.802  (11 min)
+[t5 s=1] gcn_res   test=0.800  (11 min)
+[t5 s=2] gcn_res   test=0.807  (11 min)
+[t5 s=3] gcn_res   test=0.839  (12 min)
+[t5 s=4] gcn_res   test=0.807  (12 min)
+  t5 gcn_res   0.811 +- 0.014
+[t5 s=0] gat_res   test=0.800  (13 min)
+[t5 s=1] gat_res   test=0.797  (13 min)
+[t5 s=2] gat_res   test=0.826  (14 min)
+[t5 s=3] gat_res   test=0.820  (14 min)
+[t5 s=4] gat_res   test=0.810  (14 min)
+  t5 gat_res   0.810 +- 0.011
+saved C:\Users\cizai\Dropbox\Documentos\Doctorado Matemáticas\path-algebra-gnn\results\tables\hepph_models_5seeds.csv

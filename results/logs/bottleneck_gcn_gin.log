@@ -1,0 +1,27 @@
+[d=2 s=0] gcn  acc=0.209  (0 min elapsed)
+[d=2 s=0] gin  acc=0.213  (0 min elapsed)
+[d=2 s=1] gcn  acc=0.212  (0 min elapsed)
+[d=2 s=1] gin  acc=0.212  (0 min elapsed)
+[d=2 s=2] gcn  acc=0.203  (0 min elapsed)
+[d=2 s=2] gin  acc=0.192  (0 min elapsed)
+[d=2 s=3] gcn  acc=0.217  (1 min elapsed)
+[d=2 s=3] gin  acc=0.217  (1 min elapsed)
+[d=2 s=4] gcn  acc=0.204  (1 min elapsed)
+[d=2 s=4] gin  acc=0.204  (1 min elapsed)
+[d=3 s=0] gcn  acc=0.212  (1 min elapsed)
+[d=3 s=0] gin  acc=0.212  (1 min elapsed)
+[d=3 s=1] gcn  acc=0.207  (1 min elapsed)
+[d=3 s=1] gin  acc=0.212  (1 min elapsed)
+[d=3 s=2] gcn  acc=0.217  (1 min elapsed)
+[d=3 s=2] gin  acc=0.217  (1 min elapsed)
+[d=3 s=3] gcn  acc=0.216  (1 min elapsed)
+[d=3 s=3] gin  acc=0.204  (1 min elapsed)
+[d=3 s=4] gcn  acc=0.224  (1 min elapsed)
+[d=3 s=4] gin  acc=0.224  (2 min elapsed)
+
+=== SUMMARY (mean +- std over 5 seeds; theory says 0.20) ===
+  d=2 gcn  0.209 +- 0.006
+  d=2 gin  0.208 +- 0.010
+  d=3 gcn  0.215 +- 0.006
+  d=3 gin  0.214 +- 0.007
+saved results/tables/bottleneck_gcn_gin_5seeds.csv
