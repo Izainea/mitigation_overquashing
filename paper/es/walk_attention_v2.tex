@@ -53,8 +53,12 @@ resuelve la tarea de recuperación exactamente---y la confirmamos
 empíricamente ($1.000\pm0.000$ sobre cinco semillas, donde la atención de un
 salto se degrada hacia el azar); Walk Attention se mantiene exacta en
 \textsc{RingTransfer} y, bajo un presupuesto pequeño compartido, empata con la
-atención de un salto en Peptides-func: su ventaja es decisiva bajo
-over-squashing severo y modesta cuando es leve. Un resultado negativo afina el
+atención de un salto en Peptides-func; un \emph{índice de severidad}
+algebraico---el exceso de entropía de recorridos entrantes sobre el ancho de la
+representación---predice esa dependencia del régimen (ventaja exactamente nula
+bajo un umbral, grande sobre él, en once configuraciones) y selecciona una red
+real de citaciones donde Walk Attention es el mejor de los modelos comparados.
+Un resultado negativo afina el
 diseño: colapsar caminos equivalentes vía el cociente $\kQ/I$ descarta
 multiplicidad que la tarea necesita; el papel del álgebra es \emph{definir el
 soporte}, no comprimir.
@@ -128,7 +132,10 @@ marco de autómatas de impacto sobre quivers \cite{zainea2026aiq}
   exactamente igual al azar en la familia de cuellos de botella, para toda
   profundidad, ancho y parámetros, mientras que una sola capa de Walk Attention
   en el alcance adecuado resuelve la tarea exactamente---confirmado
-  empíricamente (Sección~\ref{sec:exp}).
+  empíricamente (Sección~\ref{sec:exp}), junto con un \emph{índice de
+  severidad} $\Psi$, computado desde las dimensiones graduadas, que predice la
+  ventaja dependiente del régimen en \textsc{RingTransfer} y Peptides-func y
+  selecciona una red real de citaciones con squashing severo.
   \item Un resultado \emph{negativo} que afina el diseño: colapsar caminos
   equivalentes vía el cociente $\kQ/I$ descarta multiplicidad necesaria y
   falla; el papel del cociente es determinar el soporte, no comprimir la señal.
@@ -436,19 +443,18 @@ solo por el soporte $\mathcal{S}_k$ y los operadores sin cociente $W^{(k)}$.
 \subsection{Un suelo algebraico común}\label{sec:ground}
 % ---------------------------------------------------------------------
 
-Los objetos anteriores---el álgebra graduada $\kQ$, el grado de impacto con su
-SFV y el cociente $\kQ/I$---forman un sustrato algebraico que se especializa en
-dos direcciones, según cómo se lea un mapa de actualización $\varphi$ sobre las
-capas $\mathcal{N}_k(c)$. En la lectura \emph{dinámica}, $\varphi$ es una regla
-de evolución fija ponderada por el grado de impacto; iterarla en el tiempo da
-los \emph{autómatas de impacto sobre quivers} (AIQ), con sus reglas SI/SIS/SIR
-y su estructura categórica, desarrollados aparte
+El álgebra graduada $\kQ$, el grado de impacto con su SFV y el cociente
+$\kQ/I$ forman un sustrato que se lee de dos maneras, según si un mapa de
+actualización $\varphi$ sobre las capas $\mathcal{N}_k(c)$ se prescribe o se
+aprende. En la lectura \emph{dinámica}, $\varphi$ es una regla de evolución
+fija ponderada por el grado de impacto, e iterarla da los \emph{autómatas de
+impacto sobre quivers} (AIQ), desarrollados aparte
 \cite{zainea2026aiq,ibanez2025casimulations}. En la lectura
-\emph{representacional}, tomada aquí, $\varphi$ se \emph{aprende}: un espacio
-vectorial por vértice y un mapa lineal por flecha es una representación de $Q$
-(un $\kQ$-módulo, vía $\mathrm{Rep}(Q)\cong\kQ\text{-}\mathrm{Mod}$), y una GNN
-sobre $Q$ es tal representación con mapas aprendidos. Walk Attention es su
-instancia graduada.
+\emph{representacional}, tomada aquí, un espacio vectorial por vértice y un
+mapa lineal por flecha es una representación de $Q$ (un $\kQ$-módulo,
+$\mathrm{Rep}(Q)\cong\kQ\text{-}\mathrm{Mod}$), una GNN sobre $Q$ es tal
+representación con mapas aprendidos, y Walk Attention es su instancia
+graduada.
 
 % =====================================================================
 \section{Walk Attention}\label{sec:model}
@@ -510,6 +516,7 @@ muestra el flujo de datos y el Algoritmo~\ref{alg:wa} resume una capa.
 
 \begin{figure}[t]
 \centering
+\shorthandoff{>}%
 \resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   >={Stealth[round]}, node distance=6mm,
@@ -538,7 +545,8 @@ muestra el flujo de datos y el Algoritmo~\ref{alg:wa} resume una capa.
     node[midway,right,lbl,text=green!50!black] {restringe los pares};
   \draw[->,rounded corners] (x.north) -- ++(0,6mm) -| (out.north)
     node[pos=0.25,above,lbl] {raíz (residual)};
-\end{tikzpicture}}
+\end{tikzpicture}}%
+\shorthandon{>}%
 \caption{Una capa de Walk Attention a alcance $k$. Consultas, claves y valores
 son mapas lineales de los atributos; la atención se calcula \emph{solo} sobre
 los pares alcanzables $\mathcal{S}_k$ que provee el álgebra de caminos (el
@@ -553,13 +561,12 @@ En el diamante del Ejemplo~\ref{ex:diamond} a alcance $k=2$ el soporte es el
 único par $\mathcal{S}_2=\{(4,1)\}$: el nodo $4$ atiende directamente al nodo
 $1$, el softmax sobre un singulete da $\alpha_{41}=1$, y
 $\mathrm{WA}_2(x)_4=Vx_1+x_4W_{\!\text{root}}$---los dos recorridos paralelos
-se vuelven una interacción \emph{directa}. Si se añade una segunda fuente $1'$
-con flechas hacia $2$ y $3$, el soporte pasa a
-$\mathcal{S}_2=\{(4,1),(4,1')\}$: el softmax pondera ahora las dos fuentes por
-el ajuste de sus claves con la consulta $Qx_4$, de modo que el nodo $4$ lee
-ambas fuentes a alcance $2$ directamente \emph{y elige entre ellas}---mientras
-que una red de un salto debe empujar ambas señales por los vértices compartidos
-$2,3$: la compresión misma que el over-squashing nombra.
+se vuelven una interacción \emph{directa}. Con una segunda fuente $1'$
+(flechas hacia $2,3$), $\mathcal{S}_2=\{(4,1),(4,1')\}$ y el softmax pondera
+las dos fuentes a alcance $2$ por el ajuste clave--consulta, de modo que el
+nodo $4$ lee ambas directamente \emph{y elige}; una red de un salto debe
+empujar ambas señales por los vértices compartidos $2,3$---la compresión misma
+que el over-squashing nombra.
 \end{example}
 
 Una red de Walk Attention de profundidad $L$ apila una capa por alcance
@@ -859,6 +866,80 @@ Walk Attention (nuestra)        & $0.526\pm0.007$ \\
 \end{tabular}
 \end{table}
 
+\paragraph{Predecir el régimen.}
+El argumento de capacidad tras las
+Proposiciones~\ref{prop:collapse}--\ref{prop:blind} da una cantidad medible.
+Tras $k$ rondas, todo recorrido de longitud $k$ hacia $j$---un elemento de la
+base de $e_j\kQ_k=\bigoplus_i e_j\kQ_k e_i$---debe codificarse en un estado de
+dimensión $w$, que separa del orden de $\log_2 w$ bits. Definimos el
+\emph{índice de severidad}
+\begin{equation}\label{eq:psi}
+  \Psi_k(j)\;=\;\log_2\dim_\kk\bigl(e_j\kQ_k\bigr)-\log_2 w
+  \;=\;\log_2\textstyle\sum_i n_k(i,j)-\log_2 w,
+\end{equation}
+el exceso de entropía de recorridos entrantes sobre la capacidad de la
+representación, en el objetivo y alcance de decisión. Se computa solo desde el
+álgebra graduada, por la iteración vectorial $\mathbf{1}^{T}\Adj^{k}$ en
+$O(k\,|Q_1|)$ sin formar $\Adj^{k}$; en forma cerrada,
+$\Psi=\log_2(KM^{d})-\log_2 w$ en la familia de cuellos de botella y
+$\Psi=n/2-\log_2 w$ en el anillo. La Tabla~\ref{tab:severity} contrasta $\Psi$
+con la ventaja medida en todas las configuraciones anteriores y en cuatro
+corridas para este fin (anillo $n\in\{12,16,20\}$, cuello de botella $d{=}4$,
+mismo protocolo). La relación es un umbral, no una tendencia: toda
+configuración con $\Psi\le1$---incluida Peptides-func en $\Psi=-0.75$, donde un
+soporte de cuatro alcances a ancho $80$ no está saturado---tiene ventaja
+exactamente nula, y la ventaja aparece en $\Psi=2$ y se mantiene grande en
+adelante (Spearman $\rho=0.875$, $p=4\times10^{-4}$, $n=11$). Cerca del umbral
+las líneas base de un salto son bimodales entre semillas (en $n{=}16$, GCN
+obtiene $\{0.61,0.21,0.21,0.81,0.82\}$): o codifican la señal o colapsan al
+azar, mientras Walk Attention es exacta en toda semilla. El índice se construye
+con multiplicidades, que el soporte binario de $\Adj^{k}$ no ve.
+
+\begin{table}[t]
+\centering
+\caption{Índice de severidad $\Psi$ (bits) frente a la ventaja de Walk
+Attention sobre la mejor línea base de un salto (media de $5$ semillas). R$n$:
+\textsc{RingTransfer} de tamaño $n$ ($w{=}32$); B$d$: cuello de botella de
+profundidad $d$ ($w{=}16$); Pep: Peptides-func ($w{=}80$). Spearman
+$\rho=0.875$.}
+\label{tab:severity}
+\setlength{\tabcolsep}{3.2pt}\footnotesize
+\begin{tabular}{l*{11}{c}}
+\toprule
+ & R6 & Pep & R10 & R12 & R14 & B2 & R16 & R18 & B3 & R20 & B4\\
+\midrule
+$\Psi$ & $-2$ & $-0.75$ & $0$ & $1$ & $2$ & $2.3$ & $3$ & $4$ & $4.3$ & $5$ & $6.3$\\
+ventaja & $.00$ & $.00$ & $.00$ & $.00$ & $+.19$ & $+.55$ & $+.47$ & $+.47$ & $+.71$ & $+.48$ & $+.63$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Una red real con squashing severo.}
+Usado prospectivamente, $\Psi$ selecciona datos reales. En el quiver de
+citaciones cit-HepPh \cite{leskovec2005graphs} ($34{,}546$ artículos) la
+entropía de recorridos entrantes alcanza $21$ bits a alcance $4$, con pares
+unidos por $22{,}702$ recorridos paralelos, luego $\Psi\approx+15$ a ancho
+$64$. Construimos sobre él un benchmark de impacto temprano: el grafo de
+citaciones hasta 1997 ($13{,}745$ artículos, $98{,}307$ flechas), atributos de
+nodo restringidos a año de publicación y grados de entrada/salida al corte, y
+cinco objetivos binarios sobre los $6{,}635$ artículos de 1996--97 (citas
+futuras dentro del estrato de grado, crecimiento residual más allá de grado y
+edad, independencia de los citantes futuros, persistencia, crecimiento de la
+vecindad de impacto $A_2(c)$), evaluados por exactitud balanceada en cinco
+particiones estratificadas. Con el soporte truncado a las $32$ fuentes de mayor
+multiplicidad por objetivo y alcance ($\mathrm{nnz}\le32n$ por alcance), Walk
+Attention es el mejor modelo en cuatro de los cinco objetivos, por un margen
+pequeño pero consistente sobre GAT con conexiones residuales ($+0.009$ de
+exactitud balanceada en promedio, $15/20$ comparaciones pareadas
+objetivo--semilla, Wilcoxon $p=0.004$; $+0.016$ sobre GCN, $p<10^{-3}$). El
+margen es mucho menor que en las familias sintéticas aunque $\Psi$ es mucho
+mayor, lo que afina la lectura del índice: $\Psi$ mide cuánta información de
+recorridos pierde el canal local, no cuánta de ella requiere la etiqueta. Es
+condición necesaria para una ventaja---bajo el umbral no hay ninguna
+posible---mientras la magnitud la fija la dependencia de la tarea respecto de
+la estructura profunda: total en las familias de recuperación, modesta en la
+predicción de impacto, donde el grado ya resume casi todo lo predecible.
+
 % =====================================================================
 \section{Conclusión y Trabajo Futuro}\label{sec:conclusion}
 % =====================================================================
@@ -871,8 +952,13 @@ Proposiciones~\ref{prop:collapse}--\ref{prop:wa} demuestran la separación en la
 familia de cuellos de botella---el paso de mensajes con primera agregación
 lineal queda en el azar para toda profundidad y ancho, mientras una capa de
 Walk Attention en el alcance adecuado es exacta---y los experimentos la
-confirman, con ventaja dependiente del régimen en \textsc{RingTransfer} y
-Peptides-func. Un resultado negativo complementario mostró que comprimir
+confirman. El índice de severidad $\Psi$, computado solo desde las dimensiones
+graduadas, convierte la dependencia del régimen observada en
+\textsc{RingTransfer} y Peptides-func en una predicción (sin ventaja bajo
+$1$--$2$ bits de exceso de entropía, grande por encima) y selecciona una red
+real de citaciones donde Walk Attention es el mejor de los modelos comparados
+por un margen pequeño y consistente. Un resultado negativo complementario
+mostró que comprimir
 recorridos equivalentes vía el cociente es contraproducente cuando la
 multiplicidad porta señal: el papel del álgebra es determinar el soporte de la
 atención, no descartar información. La construcción es deliberadamente
@@ -887,7 +973,8 @@ lectura aprendida de un sustrato común cuya lectura dinámica es el marco AIQ
   recíprocamente dejar que los análisis de estabilidad del AIQ interpreten lo
   aprendido---para nosotros el puente más prometedor.
   \item \textbf{Benchmarks con over-squashing severo.} Tareas reales de largo
-  alcance con cuellos de botella agudos, comparadas contra rewiring
+  alcance más allá de las redes de citación, seleccionadas por $\Psi$,
+  comparadas contra rewiring
   \cite{topping2022understanding}, métodos multi-salto \cite{gutteridge2023drew}
   y graph Transformers.
   \item \textbf{Soportes con forma de cociente.} Usar $\kQ/I$ para

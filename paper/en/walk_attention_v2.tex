@@ -49,8 +49,11 @@ while a single Walk Attention layer at the matching range solves the retrieval
 task exactly---and confirm it empirically ($1.000\pm0.000$ over five seeds,
 where one-hop attention degrades toward chance); Walk Attention also stays
 exact on \textsc{RingTransfer} and, under a shared small budget, ties one-hop
-attention on Peptides-func, so its advantage is decisive under severe
-over-squashing and modest when squashing is mild. A negative result sharpens
+attention on Peptides-func; an algebraic \emph{severity index}---the excess of
+incoming walk entropy over representation width---predicts this regime
+dependence (advantage exactly zero below a threshold, large above it, over
+eleven configurations) and selects a real citation network on which Walk
+Attention is the best of the compared models. A negative result sharpens
 the design: collapsing equivalent walks via the quotient $\kQ/I$ discards
 multiplicity the task needs; the algebra's role is to \emph{define the support},
 not to compress. Walk Attention is the learned reading of an algebraic
@@ -121,8 +124,10 @@ is the automata-of-impact-over-quivers framework \cite{zainea2026aiq}
   in the source features (GCN, GIN) has exactly chance accuracy on the
   bottleneck family, for every depth, width and parameters, while a single Walk
   Attention layer at the matching range solves the task exactly---confirmed
-  empirically (Section~\ref{sec:exp}), with a regime-dependent advantage on
-  \textsc{RingTransfer} and Peptides-func.
+  empirically (Section~\ref{sec:exp}), together with a \emph{severity index}
+  $\Psi$, computed from the graded dimensions, that predicts the
+  regime-dependent advantage on \textsc{RingTransfer} and Peptides-func and
+  selects a real citation network with severe squashing.
   \item A \emph{negative} result that sharpens the design: collapsing
   equivalent walks via the quotient $\kQ/I$ discards needed multiplicity and
   fails; the quotient's role is to determine the support, not to compress the
@@ -425,20 +430,18 @@ through the support $\mathcal{S}_k$ and the unquotiented operators $W^{(k)}$.
 \subsection{A common algebraic ground}\label{sec:ground}
 % ---------------------------------------------------------------------
 
-The objects above---the graded algebra $\kQ$, the impact degree with its FNS,
-and the quotient $\kQ/I$---form one algebraic substrate that specialises in two
-directions, according to how a node-update map $\varphi$ over the layers
-$\mathcal{N}_k(c)$ is read. In the \emph{dynamical} reading, $\varphi$ is a
-fixed evolution rule weighted by impact degree; iterating it in time yields the
-\emph{automata of impact over quivers} (AIQ), with its SI/SIS/SIR rules and
-category structure, developed separately
+The graded algebra $\kQ$, the impact degree with its FNS, and the quotient
+$\kQ/I$ form one substrate read in two ways, according to whether a node-update
+map $\varphi$ over the layers $\mathcal{N}_k(c)$ is prescribed or learned. In
+the \emph{dynamical} reading $\varphi$ is a fixed evolution rule weighted by
+impact degree, and iterating it yields the \emph{automata of impact over
+quivers} (AIQ) developed separately
 \cite{zainea2026aiq,ibanez2025casimulations}. In the \emph{representational}
-reading, taken here, $\varphi$ is \emph{learned}: a vector space at each vertex
-and a linear map at each arrow is a representation of $Q$ (a $\kQ$-module, via
-$\mathrm{Rep}(Q)\cong\kQ\text{-}\mathrm{Mod}$), and a graph neural network on
-$Q$ is such a representation with learned arrow maps. Walk Attention is its
-graded instance; the two readings share the trunk and differ only in whether
-$\varphi$ is prescribed or learned.
+reading, taken here, a vector space per vertex and a linear map per arrow is a
+representation of $Q$ (a $\kQ$-module,
+$\mathrm{Rep}(Q)\cong\kQ\text{-}\mathrm{Mod}$), a graph neural network on $Q$
+is such a representation with learned arrow maps, and Walk Attention is its
+graded instance.
 
 % =====================================================================
 \section{Walk Attention}\label{sec:model}
@@ -542,12 +545,11 @@ In the diamond of Example~\ref{ex:diamond} at range $k=2$ the support is the
 single pair $\mathcal{S}_2=\{(4,1)\}$: node $4$ attends directly to node $1$,
 the softmax over a singleton gives $\alpha_{41}=1$, and
 $\mathrm{WA}_2(x)_4=Vx_1+x_4W_{\!\text{root}}$---the two parallel walks become
-one \emph{direct} interaction. Adding a second source $1'$ with arrows to $2$
-and $3$ gives $\mathcal{S}_2=\{(4,1),(4,1')\}$: the softmax now weighs the two
-sources by the match of their keys against the query $Qx_4$, so node $4$ reads
-both range-$2$ sources directly \emph{and chooses between them}---whereas a
-one-hop network must push both signals through the shared vertices $2,3$, the
-very compression that over-squashing names.
+one \emph{direct} interaction. With a second source $1'$ (arrows to $2,3$),
+$\mathcal{S}_2=\{(4,1),(4,1')\}$ and the softmax weighs the two range-$2$
+sources by key--query match, so node $4$ reads both directly \emph{and
+chooses}; a one-hop network must push both signals through the shared vertices
+$2,3$---the very compression that over-squashing names.
 \end{example}
 
 A depth-$L$ Walk Attention network stacks one layer per range $k=1,\dots,L$, so
@@ -840,6 +842,76 @@ Walk Attention (ours)        & $0.526\pm0.007$ \\
 \end{tabular}
 \end{table}
 
+\paragraph{Predicting the regime.}
+The capacity argument behind
+Propositions~\ref{prop:collapse}--\ref{prop:blind} yields a measurable
+quantity. After $k$ rounds every length-$k$ walk into $j$---one basis element
+of $e_j\kQ_k=\bigoplus_i e_j\kQ_k e_i$---must be encoded in a $w$-dimensional
+state, which separates of the order of $\log_2 w$ bits. We define the
+\emph{severity index}
+\begin{equation}\label{eq:psi}
+  \Psi_k(j)\;=\;\log_2\dim_\kk\bigl(e_j\kQ_k\bigr)-\log_2 w
+  \;=\;\log_2\textstyle\sum_i n_k(i,j)-\log_2 w,
+\end{equation}
+the excess of incoming walk entropy over representation capacity at the
+decision target and range. It is computed from the graded algebra alone, by
+the vector iteration $\mathbf{1}^{T}\Adj^{k}$ in $O(k\,|Q_1|)$ without forming
+$\Adj^{k}$; in closed form $\Psi=\log_2(KM^{d})-\log_2 w$ on the bottleneck
+family and $\Psi=n/2-\log_2 w$ on the ring. Table~\ref{tab:severity} sets
+$\Psi$ against the measured advantage on every configuration above and on four
+run for this purpose (ring $n\in\{12,16,20\}$, bottleneck $d{=}4$, same
+protocol). The relation is a threshold rather than a trend: every
+configuration with $\Psi\le1$---including Peptides-func at $\Psi=-0.75$, where
+a four-range support at width $80$ is not saturated---has advantage exactly
+zero, and the advantage appears at $\Psi=2$ and stays large beyond (Spearman
+$\rho=0.875$, $p=4\times10^{-4}$, $n=11$). Near the threshold the one-hop
+baselines are bimodal across seeds (at $n{=}16$, GCN scores
+$\{0.61,0.21,0.21,0.81,0.82\}$): they either encode the signal or collapse to
+chance, whereas Walk Attention is exact on every seed. The index is built from
+multiplicities, which the binary support of $\Adj^{k}$ does not see.
+
+\begin{table}[t]
+\centering
+\caption{Severity index $\Psi$ (bits) against the advantage of Walk Attention
+over the best one-hop baseline (mean over $5$ seeds). R$n$: \textsc{RingTransfer}
+of size $n$ ($w{=}32$); B$d$: bottleneck of depth $d$ ($w{=}16$); Pep:
+Peptides-func ($w{=}80$). Spearman $\rho=0.875$.}
+\label{tab:severity}
+\setlength{\tabcolsep}{3.2pt}\footnotesize
+\begin{tabular}{l*{11}{c}}
+\toprule
+ & R6 & Pep & R10 & R12 & R14 & B2 & R16 & R18 & B3 & R20 & B4\\
+\midrule
+$\Psi$ & $-2$ & $-0.75$ & $0$ & $1$ & $2$ & $2.3$ & $3$ & $4$ & $4.3$ & $5$ & $6.3$\\
+advantage & $.00$ & $.00$ & $.00$ & $.00$ & $+.19$ & $+.55$ & $+.47$ & $+.47$ & $+.71$ & $+.48$ & $+.63$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{A real network with severe squashing.}
+Used prospectively, $\Psi$ selects real data. On the cit-HepPh citation quiver
+\cite{leskovec2005graphs} ($34{,}546$ papers) the incoming walk entropy reaches
+$21$ bits at range $4$, with pairs joined by $22{,}702$ parallel walks, so
+$\Psi\approx+15$ at width $64$. We build an early-impact benchmark on it: the
+citation graph up to 1997 ($13{,}745$ papers, $98{,}307$ arrows), node
+features restricted to publication year and in/out-degree at the cut, and five
+binary targets on the $6{,}635$ papers of 1996--97 (future citations within
+degree stratum, residual growth beyond degree and age, independence of future
+citers, persistence, growth of the impact neighbourhood $A_2(c)$), scored by
+balanced accuracy over five stratified splits. With the support truncated to
+the $32$ sources of largest multiplicity per target and range
+($\mathrm{nnz}\le32n$ per range), Walk Attention is the best model on four of
+the five targets, by a small but consistent margin over GAT with residual
+connections ($+0.009$ balanced accuracy on average, $15/20$ paired
+target--seed comparisons, Wilcoxon $p=0.004$; $+0.016$ over GCN,
+$p<10^{-3}$). The margin is far smaller than on the synthetic families although
+$\Psi$ is far larger, which sharpens the reading of the index: $\Psi$ measures
+how much walk information the local channel loses, not how much of it the
+label requires. It is a necessary condition for an advantage---below the
+threshold none is possible---while the magnitude is set by the task's
+dependence on deep structure: total in the retrieval families, modest in impact
+prediction, where degree already summarises most of what is predictable.
+
 % =====================================================================
 \section{Conclusion and Future Work}\label{sec:conclusion}
 % =====================================================================
@@ -850,9 +922,13 @@ underlying quiver. Proposition~\ref{prop:count} gives the support and its
 multiplicities exactly; Propositions~\ref{prop:collapse}--\ref{prop:wa} prove
 the separation on the bottleneck family---message passing with linear first
 aggregation is at chance for every depth and width, while one Walk Attention
-layer at the matching range is exact---and the experiments confirm it, with a
-regime-dependent advantage on \textsc{RingTransfer} and Peptides-func. A
-complementary negative result showed that compressing equivalent walks via the
+layer at the matching range is exact---and the experiments confirm it. The
+severity index $\Psi$, computed from the graded dimensions alone, turns the
+regime dependence observed on \textsc{RingTransfer} and Peptides-func into a
+prediction (no advantage below $1$--$2$ bits of excess entropy, a large one
+above) and selects a real citation network on which Walk Attention is the best
+of the compared models by a small, consistent margin. A complementary negative
+result showed that compressing equivalent walks via the
 quotient is counterproductive when multiplicity carries signal: the role of the
 algebra is to determine the attention support, not to discard information. The
 construction is deliberately elementary and self-contained, an entry point
@@ -867,7 +943,7 @@ AIQ framework \cite{zainea2026aiq}. Several directions follow.
   reachability analyses interpret and constrain what Walk Attention has
   learned---to us the most promising bridge.
   \item \textbf{Benchmarks with severe over-squashing.} Real long-range tasks
-  whose graphs contain acute bottlenecks, compared against rewiring
+  beyond citation networks, selected by $\Psi$, compared against rewiring
   \cite{topping2022understanding}, multi-hop \cite{gutteridge2023drew} and
   graph-Transformer baselines.
   \item \textbf{Quotient-shaped supports.} Use $\kQ/I$ to \emph{partition}
