@@ -36,3 +36,6 @@ mlartifacts/
 Thumbs.db
 .vscode/
 .idea/
+
+# Signed publishing agreements (contain handwritten signature) - never version
+paper/AcuerdoLicencia/
